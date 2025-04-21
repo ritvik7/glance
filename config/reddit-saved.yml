@@ -1,0 +1,38 @@
+- name: Reddit Saved
+  columns:
+    - size: full
+      widgets:
+        - type: custom
+          title: Reddit Saved Posts
+          template: |
+            <div class="reddit-saved-posts">
+              {{range .Posts}}
+              <div class="reddit-post">
+                <h3><a href="{{.URL}}" target="_blank">{{.Title}}</a></h3>
+                <div class="post-meta">
+                  <span class="subreddit">{{.Subreddit}}</span>
+                  <span class="score">Score: {{.Score}}</span>
+                  <span class="comments">Comments: {{.NumComments}}</span>
+                  <span class="date">Saved: {{.SavedDate}}</span>
+                </div>
+              </div>
+              {{end}}
+            </div>
+          data: https://oauth.reddit.com/user/wavy-curve/saved
+          headers:
+            Authorization: Bearer ${REDDIT_ACCESS_TOKEN}
+            User-Agent: Glance/1.0
+          transform: |
+            function(data) {
+              return {
+                Posts: data.data.children.map(post => ({
+                  Title: post.data.title,
+                  URL: "https://reddit.com" + post.data.permalink,
+                  Subreddit: "r/" + post.data.subreddit,
+                  Score: post.data.score,
+                  NumComments: post.data.num_comments,
+                  SavedDate: new Date(post.data.created_utc * 1000).toLocaleString()
+                }))
+              };
+            }
+          refresh: 1h

@@ -1,0 +1,19 @@
+customApis:
+  - name: "Reddit Saved Posts"
+    description: "Your saved Reddit gems"
+    method: "GET"
+    url: "https://reddit.com/user/${REDDIT_USERNAME}/saved"
+    headers:
+      Authorization: "Bearer ${REDDIT_ACCESS_TOKEN}"
+      User-Agent: "SavedPostsScript/1.0"
+    refreshIntervalMinutes: 30  # Optional - auto-refresh
+    transform:
+      dataPath: "data.children"
+      fields:
+        - title: "data.title"
+        - subreddit: "data.subreddit"
+        - url: "'https://reddit.com' + data.permalink"
+        - saved_date: "datetime.fromtimestamp(data.created_utc).isoformat()"
+        - text: "data.selftext"
+        - score: "data.score"
+        - num_comments: "data.num_comments"

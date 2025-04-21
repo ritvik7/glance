@@ -1,0 +1,145 @@
+pages:
+  - name: Home
+    # Optionally, if you only have a single page you can hide the desktop navigation for a cleaner look
+    # hide-desktop-navigation: true
+    columns:
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: rss
+            limit: 10
+            collapse-after: 3
+            cache: 12h
+            feeds:
+              # - url: https://selfh.st/rss/
+              #   title: selfh.st
+              #   limit: 4
+              # - url: https://ciechanow.ski/atom.xml
+              # - url: https://www.joshwcomeau.com/rss.xml
+              #   title: Josh Comeau
+              # - url: https://samwho.dev/rss.xml
+              # - url: https://ishadeed.com/feed.xml
+              #   title: Ahmad Shadeed
+              - url: https://oauth.reddit.com/user/${REDDIT_USERNAME}/saved
+                title: Reddit Saved Posts
+                request-url-template: "http://vpn:8888/proxy?url={url}"
+                headers:
+                  Authorization: Bearer ${REDDIT_ACCESS_TOKEN}
+                  User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                  Accept: "application/json"
+                transform: |
+                  function(data) {
+                    return {
+                      items: data.data.children.map(post => ({
+                        title: post.data.title,
+                        url: "https://reddit.com" + post.data.permalink,
+                        description: post.data.selftext || "",
+                        date: new Date(post.data.created_utc * 1000).toISOString()
+                      }))
+                    };
+                  }
+                refresh: 1h
+                limit: 20
+                collapse-after: 5
+
+          - type: twitch-channels
+            channels:
+              - theprimeagen
+              - j_blow
+              - piratesoftware
+              - cohhcarnage 
+              - christitustech
+              - EJ_SA
+
+      - size: full
+        widgets:
+          - type: group
+            widgets:
+              - type: hacker-news
+              - type: lobsters
+
+          - type: videos
+            channels:
+              - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
+              - UCR-DXc1voovS8nhAvccRZhg # Jeff Geerling
+              - UCsBjURrPoezykLs9EqgamOA # Fireship
+              - UCBJycsmduvYEL83R_U4JriQ # Marques Brownlee
+              - UCHnyfMqiRRG1u-2MsSQLbXA # Veritasium
+
+          - type: group
+            widgets:
+              - type: reddit
+                subreddit: technology
+                show-thumbnails: true
+              - type: reddit
+                subreddit: selfhosted
+                show-thumbnails: true
+              - type: rss
+                title: Reddit Saved Posts
+                url: https://oauth.reddit.com/user/${REDDIT_USERNAME}/saved
+                headers:
+                  Authorization: Bearer ${REDDIT_ACCESS_TOKEN}
+                  User-Agent: glance/1.0
+                transform: |
+                  function(data) {
+                    return {
+                      items: data.data.children.map(post => ({
+                        title: post.data.title,
+                        url: "https://reddit.com" + post.data.permalink,
+                        description: post.data.selftext || "",
+                        date: new Date(post.data.created_utc * 1000).toISOString()
+                      }))
+                    };
+                  }
+                refresh: 1h
+                limit: 20
+                collapse-after: 5
+      - size: small
+        widgets:
+          - type: weather
+            location: London, United Kingdom
+            units: metric # alternatively "imperial"
+            hour-format: 12h # alternatively "24h"
+            # Optionally hide the location from being displayed in the widget
+            # hide-location: true
+
+          - type: markets
+            markets:
+              - symbol: SPY
+                name: S&P 500
+              - symbol: BTC-USD
+                name: Bitcoin
+              - symbol: NVDA
+                name: NVIDIA
+              - symbol: AAPL
+                name: Apple
+              - symbol: MSFT
+                name: Microsoft
+
+          - type: releases
+            cache: 1d
+            # Without authentication the Github API allows for up to 60 requests per hour. You can create a
+            # read-only token from your Github account settings and use it here to increase the limit.
+            # token: ...
+            repositories:
+              - glanceapp/glance
+              - go-gitea/gitea
+              - immich-app/immich
+              - syncthing/syncthing
+
+  # Add more pages here:
+  # - name: Your page name
+  #   columns:
+  #     - size: small
+  #       widgets:
+  #         # Add widgets here
+
+  #     - size: full
+  #       widgets:
+  #         # Add widgets here
+
+  #     - size: small
+  #       widgets:
+  #         # Add widgets here
