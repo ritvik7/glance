@@ -1,0 +1,40 @@
+services:
+  nordvpn:
+    image: bubuntux/nordlynx
+    container_name: nordvpn
+    env_file: .env
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    restart: unless-stopped
+    networks:
+      - glance_network
+
+  glance:
+    container_name: glance
+    image: glanceapp/glance
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+    env_file: .env
+    networks:
+      - glance_network
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    networks:
+      - glance_network
+    depends_on:
+      - nordvpn
+
+networks:
+  glance_network:
+    driver: bridge
